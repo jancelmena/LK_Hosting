@@ -9,22 +9,25 @@ cat > docker-compose.yml <<EOL
 version: '3.8'
 
 x-common:
-  database: &db-environment
-    MYSQL_PASSWORD: "Tu_Contraseña_Segura"
-    MYSQL_ROOT_PASSWORD: "Otra_Contraseña_Segura"
-  panel: &panel-environment
+  database:
+    &db-environment
+    MYSQL_PASSWORD: &db-password "CHANGE_ME"
+    MYSQL_ROOT_PASSWORD: "CHANGE_ME_TOO"
+  panel:
+    &panel-environment
     APP_URL: "https://pterodactyl.example.com"
     APP_TIMEZONE: "UTC"
     APP_SERVICE_AUTHOR: "noreply@example.com"
     TRUSTED_PROXIES: "*"
-  mail: &mail-environment
+  mail:
+    &mail-environment
     MAIL_FROM: "noreply@example.com"
     MAIL_DRIVER: "smtp"
     MAIL_HOST: "mail"
     MAIL_PORT: "1025"
     MAIL_USERNAME: ""
     MAIL_PASSWORD: ""
-    MAIL_ENCRYPTION: "true"
+    MAIL_ENCRYPTION: true
 
 services:
   database:
@@ -52,13 +55,13 @@ services:
       - database
       - cache
     volumes:
-      - "/srv/pterodactyl/var:/app/var"
-      - "/srv/pterodactyl/nginx:/etc/nginx/http.d"
-      - "/srv/pterodactyl/certs:/etc/letsencrypt"
-      - "/srv/pterodactyl/logs:/app/storage/logs"
+      - "/srv/pterodactyl/var/:/app/var/"
+      - "/srv/pterodactyl/nginx/:/etc/nginx/http.d/"
+      - "/srv/pterodactyl/certs/:/etc/letsencrypt/"
+      - "/srv/pterodactyl/logs/:/app/storage/logs"
     environment:
-      <<: [*panel-environment, *mail-environment]
-      DB_PASSWORD: "Tu_Contraseña_Segura"
+      <<: ["panel-environment, mail-environment"]
+      DB_PASSWORD: *db-password
       APP_ENV: "production"
       APP_ENVIRONMENT_ONLY: "false"
       CACHE_DRIVER: "redis"
